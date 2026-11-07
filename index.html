@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Глитч портал</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Golos+Text:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: one short column, big numbered steps, real screenshot with red marks */
+:root{
+  --bg:#17181b; --panel:#222328; --line:#34363d; --fg:#ece9f3; --muted:#a19eae;
+  --top:#8f7fe0; --chop:#6fbf63; --dat:#d36fa8; --hot:#ff4b30;
+  --f-display:"Unbounded","Arial Black",system-ui,sans-serif;
+  --f-body:"Golos Text",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:17px/1.55 var(--f-body);
+  padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-block:0 64px}
+.wrap{max-width:680px;margin:0 auto}
+.hero{display:grid;gap:16px;padding-block:36px 8px}
+h1{font:700 clamp(30px,7.5vw,48px)/1.05 var(--f-display);margin:0;text-wrap:balance}
+.lede{color:var(--muted);margin:0}
+canvas{width:100%;max-width:100%;aspect-ratio:16/9;border-radius:8px;background:#0d0d10;display:block;border:1px solid var(--line)}
+.needs{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font:500 13px/1 var(--f-mono);padding:8px 10px;border:1px solid var(--line);border-radius:4px;background:var(--panel)}
+h2{font:500 20px/1.25 var(--f-display);margin:40px 0 14px}
+ol.steps{list-style:none;margin:0;padding:0;display:grid;gap:14px}
+.step{display:grid;grid-template-columns:48px 1fr;gap:14px;align-items:start;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:16px}
+.n{width:48px;height:48px;border-radius:50%;background:var(--hot);color:#fff;display:grid;place-items:center;font:700 20px var(--f-display)}
+.step h3{margin:2px 0 4px;font:600 18px/1.3 var(--f-body)}
+.step p{margin:4px 0 0;color:#d2cfdc}
+.step .body{min-width:0}
+figure{margin:12px 0 0}
+figure img{width:100%;max-width:100%;border-radius:6px;border:1px solid var(--line);display:block}
+figcaption{font-size:14px;color:var(--muted);margin-top:6px}
+.mock{margin-top:12px;display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap;background:#1b1c20;border:1px dashed var(--line);border-radius:6px;padding:14px}
+.dat{width:120px;border:2px solid var(--dat);border-radius:4px;background:#26262b;font:600 13px var(--f-mono);color:var(--fg)}
+.dat div{height:56px;display:grid;place-items:center;font:700 22px var(--f-body)}
+.dat span{display:block;border-top:1px solid #444;padding:3px 6px;font-weight:400}
+.menu{background:#3a3b40;border-radius:4px;font:13px/1 var(--f-body);min-width:150px;padding:4px 0;color:#ddd}
+.menu div{padding:6px 10px}
+.menu .hit{outline:3px solid var(--hot);outline-offset:-1px;border-radius:3px;color:#fff;font-weight:600}
+kbd{font:600 13px/1 var(--f-mono);background:#2e3037;border:1px solid #474a53;border-bottom-width:2px;border-radius:4px;padding:3px 6px;white-space:nowrap}
+code{font:14px/1.4 var(--f-mono);background:#2a2b31;padding:1px 5px;border-radius:3px;color:#f0d3e6}
+.faq{display:grid;gap:10px}
+.faq div{border-left:3px solid var(--top);padding:2px 0 2px 12px}
+.faq b{display:block}
+.faq span{color:#d2cfdc}
+.code-head{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+button{font:600 15px/1 var(--f-body);background:var(--hot);color:#fff;border:0;border-radius:6px;padding:13px 18px;cursor:pointer}
+button:focus-visible,summary:focus-visible{outline:2px solid var(--top);outline-offset:3px}
+.ok{font:500 13px var(--f-mono);color:var(--chop)}
+details{margin-top:10px;border:1px solid var(--line);border-radius:6px;background:#121316}
+summary{cursor:pointer;padding:12px 14px;font:500 14px var(--f-mono);color:var(--muted)}
+pre.src{margin:0;max-height:360px;overflow:auto;padding:14px;font:12px/1.5 var(--f-mono);color:#cfccda;border-top:1px solid var(--line)}
+.step a{color:var(--top);font-weight:600}
+.hint{font-size:14px;color:var(--muted);min-width:0;flex:1 1 220px}
+.note{color:var(--muted);font-size:14px;margin-top:32px}
+</style>
+</head><body>
+
+<div class="wrap">
+<header class="hero">
+  <h1>Глитч портал</h1>
+  <p class="lede">Поднимаешь руки, и между пальцами появляется кислотное окно. Собирается за минуту.</p>
+  <canvas id="demo" width="960" height="540" aria-label="Анимация: цветная фигура между пальцами двух рук"></canvas>
+  <div class="needs">
+    <span class="chip">TouchDesigner (бесплатный)</span>
+    <span class="chip">вебкамера</span>
+    <span class="chip">интернет</span>
+  </div>
+</header>
+
+<h2>4 шага</h2>
+<ol class="steps">
+  <li class="step"><div class="n">1</div><div class="body">
+    <h3>Скачай TouchDesigner</h3>
+    <p><a href="https://derivative.ca/" target="_blank" rel="noopener">derivative.ca</a>, бесплатная версия.</p></div></li>
+
+  <li class="step"><div class="n">2</div><div class="body">
+    <h3>Перетащи файл в программу</h3>
+    <p><a href="glitch_portal_setup.py" download>Скачай файл glitch_portal_setup.py</a> и перетащи его на тёмное поле с нодами. Появится розовая нода.</p>
+    <div class="code-head" style="margin-top:12px">
+      <span class="hint">Нет файла? Скопируй код и вставь в ноду Text (<kbd>Tab</kbd> → DAT → Text).</span>
+      <span style="display:flex;gap:10px;align-items:center"><span id="copied" class="ok" hidden>Скопировано</span><button id="copy" type="button">Скопировать код</button></span>
+    </div>
+    <details><summary>Нет файла? Показать код</summary><pre class="src" id="src"># GLITCH PORTAL for TouchDesigner
+# Drag this file into a TouchDesigner network -&gt; right-click the new Text DAT -&gt; Run Script.
+# Builds a &#x27;hand_portal&#x27; component next to this DAT: webcam + MediaPipe hand tracking,
+# psychedelic effect between thumbs and index fingers of both hands.
+PORT = 9981
+HTML = &#x27;&lt;!doctype html&gt;\n&lt;html&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;\n&lt;style&gt;html,body{margin:0;background:#000;overflow:hidden}canvas{display:block;width:100vw;height:100vh}#s{position:fixed;left:20px;top:20px;color:#0f0;font:32px monospace;z-index:9}&lt;/style&gt;\n&lt;/head&gt;&lt;body&gt;\n&lt;canvas id=&quot;c&quot; width=&quot;1280&quot; height=&quot;720&quot;&gt;&lt;/canvas&gt;&lt;div id=&quot;s&quot;&gt;loading...&lt;/div&gt;\n&lt;video id=&quot;v&quot; playsinline muted style=&quot;display:none&quot;&gt;&lt;/video&gt;\n&lt;script type=&quot;module&quot;&gt;\nimport {FilesetResolver, HandLandmarker} from &quot;https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs&quot;;\nconst S=document.getElementById(\&#x27;s\&#x27;), v=document.getElementById(\&#x27;v\&#x27;), c=document.getElementById(\&#x27;c\&#x27;), g=c.getContext(\&#x27;2d\&#x27;);\nlet ws=null;\nfunction st(t){S.textContent=t; try{ if(ws&amp;&amp;ws.readyState===1) ws.send(JSON.stringify({status:t})); }catch(e){} }\nfunction connect(){ try{ ws=new WebSocket(\&#x27;ws://\&#x27;+location.host); ws.onopen=()=&gt;ws.send(JSON.stringify({status:\&#x27;ws open; \&#x27;+S.textContent})); ws.onclose=()=&gt;setTimeout(connect,1000);}catch(e){setTimeout(connect,1000);} }\nconnect();\nconst B=[[0,1],[1,2],[2,3],[3,4],[0,5],[5,6],[6,7],[7,8],[5,9],[9,10],[10,11],[11,12],[9,13],[13,14],[14,15],[15,16],[13,17],[17,18],[18,19],[19,20],[0,17]];\ntry{\n  st(\&#x27;loading mediapipe\&#x27;);\n  const files=await FilesetResolver.forVisionTasks(&quot;https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm&quot;);\n  const hl=await HandLandmarker.createFromOptions(files,{baseOptions:{modelAssetPath:&quot;https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task&quot;,delegate:&quot;GPU&quot;},runningMode:&quot;VIDEO&quot;,numHands:2});\n  st(\&#x27;requesting camera\&#x27;);\n  v.srcObject=await navigator.mediaDevices.getUserMedia({video:{width:1280,height:720},audio:false});\n  await v.play(); st(\&#x27;running\&#x27;); setTimeout(()=&gt;{S.textContent=\&#x27;\&#x27;;},1500);\n  let last=-1;\n  function loop(){\n    const W=c.width,H=c.height;\n    g.save(); g.translate(W,0); g.scale(-1,1); g.drawImage(v,0,0,W,H); g.restore();\n    let hands=[];\n    if(v.currentTime!==last){ last=v.currentTime;\n      const r=hl.detectForVideo(v,performance.now());\n      hands=(r.landmarks||[]).map(h=&gt;h.map(p=&gt;[1-p.x,p.y]));\n      window._h=hands;\n    } else hands=window._h||[];\n    for(const h of hands){\n      g.strokeStyle=\&#x27;#ff2a1a\&#x27;; g.lineWidth=6;\n      for(const [a,b] of B){g.beginPath();g.moveTo(h[a][0]*W,h[a][1]*H);g.lineTo(h[b][0]*W,h[b][1]*H);g.stroke();}\n      g.fillStyle=\&#x27;#4dff3a\&#x27;;\n      for(const p of h){g.beginPath();g.arc(p[0]*W,p[1]*H,9,0,7);g.fill();}\n    }\n    if(ws&amp;&amp;ws.readyState===1) ws.send(JSON.stringify({hands}));\n    requestAnimationFrame(loop);\n  }\n  loop();\n}catch(e){ st(\&#x27;ERROR: \&#x27;+e); console.error(e); }\n&lt;/script&gt;&lt;/body&gt;&lt;/html&gt;\n&#x27;
+try:
+	root = me.parent()
+except Exception:
+	root = op(&#x27;/project1&#x27;)
+old = root.op(&#x27;hand_portal&#x27;)
+if old: old.destroy()
+P = root.create(baseCOMP, &#x27;hand_portal&#x27;)
+try:
+	P.nodeX, P.nodeY = me.nodeX + 250, me.nodeY
+except Exception:
+	P.nodeX, P.nodeY = 0, -400
+
+html = P.create(textDAT, &#x27;page_html&#x27;); html.text = HTML; html.nodeX, html.nodeY = -600, 300
+
+cb = P.create(textDAT, &#x27;webserver_callbacks&#x27;); cb.nodeX, cb.nodeY = -600, 150
+cb.text = &#x27;&#x27;&#x27;import json
+def onHTTPRequest(webServerDAT, request, response):
+	response[&#x27;statusCode&#x27;] = 200
+	response[&#x27;statusReason&#x27;] = &#x27;OK&#x27;
+	response[&#x27;content-type&#x27;] = &#x27;text/html&#x27;
+	response[&#x27;data&#x27;] = op(&#x27;page_html&#x27;).text
+	return response
+def onWebSocketOpen(webServerDAT, client, uri):
+	return
+def onWebSocketClose(webServerDAT, client):
+	return
+def onWebSocketReceiveText(webServerDAT, client, data):
+	try:
+		hands = json.loads(data).get(&#x27;hands&#x27;, [])
+	except Exception:
+		return
+	d = json.loads(data)
+	if &#x27;status&#x27; in d:
+		print(&#x27;[hands page]&#x27;, d[&#x27;status&#x27;])
+		parent().store(&#x27;status&#x27;, d[&#x27;status&#x27;])
+		return
+	c = op(&#x27;pts&#x27;)
+	if len(hands) &gt;= 2:
+		hands = sorted(hands[:2], key=lambda h: h[0][0])
+		A, B = hands
+		q = [A[4], A[8], B[8], B[4]]
+		for i, p in enumerate(q):
+			getattr(c.par, &#x27;const%dvalue&#x27; % (2*i)).val = p[0]
+			getattr(c.par, &#x27;const%dvalue&#x27; % (2*i+1)).val = 1 - p[1]
+		c.par.const8value = 1
+	else:
+		c.par.const8value = 0
+	return
+def onWebSocketReceiveBinary(webServerDAT, client, data):
+	return
+def onServerStart(webServerDAT):
+	return
+def onServerStop(webServerDAT):
+	return
+&#x27;&#x27;&#x27;
+
+ws = P.create(webserverDAT, &#x27;webserver1&#x27;); ws.nodeX, ws.nodeY = -400, 150
+ws.par.port = PORT
+ws.par.callbacks = cb
+ws.par.active = True
+
+pts = P.create(constantCHOP, &#x27;pts&#x27;); pts.nodeX, pts.nodeY = -400, -150
+names = [&#x27;x0&#x27;,&#x27;y0&#x27;,&#x27;x1&#x27;,&#x27;y1&#x27;,&#x27;x2&#x27;,&#x27;y2&#x27;,&#x27;x3&#x27;,&#x27;y3&#x27;,&#x27;active&#x27;]
+pts.seq.const.numBlocks = len(names)
+for i, n in enumerate(names):
+	getattr(pts.par, &#x27;const%dname&#x27; % i).val = n
+	getattr(pts.par, &#x27;const%dvalue&#x27; % i).val = 0
+filt = P.create(filterCHOP, &#x27;smooth&#x27;); filt.nodeX, filt.nodeY = -200, -150
+filt.inputConnectors[0].connect(pts)
+filt.par.width = 0.12
+hands = P.create(nullCHOP, &#x27;hands&#x27;); hands.nodeX, hands.nodeY = 0, -150
+hands.inputConnectors[0].connect(filt)
+
+wr = P.create(webrenderTOP, &#x27;cam_tracking&#x27;); wr.nodeX, wr.nodeY = -200, 150
+for pn, v in [(&#x27;outputresolution&#x27;,&#x27;custom&#x27;), (&#x27;resolutionw&#x27;,1280), (&#x27;resolutionh&#x27;,720)]:
+	try: setattr(wr.par, pn, v)
+	except Exception as e: print(&#x27;webrender par&#x27;, pn, e)
+wr.par.mediastream = True
+wr.par.url = &#x27;http://localhost:%d/&#x27; % PORT
+try: wr.par.active = True
+except Exception: pass
+
+frag = P.create(textDAT, &#x27;portal_pixel&#x27;); frag.nodeX, frag.nodeY = 0, 300
+frag.text = &#x27;&#x27;&#x27;uniform vec4 uP01;
+uniform vec4 uP23;
+uniform vec4 uMisc;
+out vec4 fragColor;
+float hash(vec2 p){ return fract(sin(dot(p, vec2(12.9898,78.233))) * 43758.5453); }
+vec3 pal(float t){ return 0.5 + 0.5*cos(6.28318*(t + vec3(0.0, 0.33, 0.67))); }
+void main(){
+	vec2 uv = vUV.st;
+	vec4 c = texture(sTD2DInputs[0], uv);
+	vec2 q[4] = vec2[4](uP01.xy, uP01.zw, uP23.xy, uP23.zw);
+	bool ins = false;
+	for (int i = 0, j = 3; i &lt; 4; j = i++) {
+		if (((q[i].y &gt; uv.y) != (q[j].y &gt; uv.y)) &amp;&amp;
+			(uv.x &lt; (q[j].x - q[i].x) * (uv.y - q[i].y) / (q[j].y - q[i].y + 1e-6) + q[i].x)) ins = !ins;
+	}
+	float t = uMisc.x;
+	vec2 px = uv * uTD2DInfos[0].res.zw;
+	float lum = dot(c.rgb, vec3(0.299, 0.587, 0.114));
+	float grain = hash(floor(px / 2.0) + floor(t * 24.0));
+	float band = lum * 3.5 + grain * 0.18 - t * 0.25;
+	vec3 psy = pal(band);
+	psy = mix(psy, vec3(1.0, 0.1, 0.9), smoothstep(0.55, 0.95, lum) * 0.6);
+	psy *= 0.85 + 0.3 * grain;
+	float m = (ins ? 1.0 : 0.0) * clamp(uMisc.y, 0.0, 1.0);
+	fragColor = TDOutputSwizzle(vec4(mix(c.rgb, psy, m), 1.0));
+}
+&#x27;&#x27;&#x27;
+glsl = P.create(glslTOP, &#x27;portal_fx&#x27;); glsl.nodeX, glsl.nodeY = 0, 150
+glsl.par.pixeldat = frag
+glsl.inputConnectors[0].connect(wr)
+glsl.seq.vec.numBlocks = 3
+H = &quot;op(&#x27;hands&#x27;)&quot;
+setv = [(&#x27;uP01&#x27;, [&#x27;x0&#x27;,&#x27;y0&#x27;,&#x27;x1&#x27;,&#x27;y1&#x27;]), (&#x27;uP23&#x27;, [&#x27;x2&#x27;,&#x27;y2&#x27;,&#x27;x3&#x27;,&#x27;y3&#x27;]), (&#x27;uMisc&#x27;, None)]
+for i, (nm, ch) in enumerate(setv):
+	getattr(glsl.par, &#x27;vec%dname&#x27; % i).val = nm
+	comps = [&#x27;x&#x27;,&#x27;y&#x27;,&#x27;z&#x27;,&#x27;w&#x27;]
+	if ch:
+		for k, cn in enumerate(ch):
+			getattr(glsl.par, &#x27;vec%dvalue%s&#x27; % (i, comps[k])).expr = &quot;%s[&#x27;%s&#x27;]&quot; % (H, cn)
+	else:
+		glsl.par.vec2valuex.expr = &#x27;absTime.seconds&#x27;
+		glsl.par.vec2valuey.expr = &quot;%s[&#x27;active&#x27;]&quot; % H
+
+out = P.create(nullTOP, &#x27;out1&#x27;); out.nodeX, out.nodeY = 200, 150
+out.inputConnectors[0].connect(glsl)
+out.viewer = True
+P.par.opviewer = out
+P.viewer = True
+out.openViewer()
+print(&#x27;hand_portal built&#x27;)
+</pre></details></div></li>
+
+  <li class="step"><div class="n">3</div><div class="body">
+    <h3>Правый клик по ней → Run Script</h3>
+    <div class="mock" aria-hidden="true">
+      <div class="dat"><div>Txt</div><span>glitch_portal_setup</span></div>
+      <div class="menu"><div>Parameters…</div><div>Edit Contents…</div><div class="hit">Run Script</div><div>View…</div></div>
+    </div>
+    <p>Разреши доступ к камере, если Mac спросит, и подожди 10 секунд.</p></div></li>
+
+  <li class="step"><div class="n">4</div><div class="body">
+    <h3>Открой картинку на весь экран</h3>
+    <p>Зайди в кубик <code>hand_portal</code>: наведи на него мышку и нажми <kbd>I</kbd>. Потом правый клик по <code>out1</code> → <b>View…</b></p>
+    <figure><img alt="Правый клик по ноде out1 и пункт View в меню" src="step4.jpg">
+      <figcaption>1 — правый клик по out1, 2 — View…</figcaption></figure>
+    <p>Подними обе руки и разведи большой и указательный пальцы.</p></div></li>
+</ol>
+
+<h2>Не работает?</h2>
+<div class="faq">
+  <div><b>Чёрный экран</b><span>Настройки Mac → Конфиденциальность → Камера → включи TouchDesigner.</span></div>
+  <div><b>Эффекта нет</b><span>Нужны обе руки в кадре и свет получше.</span></div>
+  <div><b>Красная надпись ERROR</b><span>Закрой Zoom или FaceTime, проверь интернет.</span></div>
+</div>
+
+<p class="note">Сохранить проект: <kbd>Cmd</kbd>+<kbd>S</kbd>. Проверено на Mac.</p>
+</div>
+
+<script>
+(function(){
+  var btn=document.getElementById('copy'),ok=document.getElementById('copied'),src=document.getElementById('src');
+  btn.addEventListener('click',function(){
+    var t=src.textContent;
+    function done(){ok.hidden=false;setTimeout(function(){ok.hidden=true},2000)}
+    function fallback(){var d=src.closest('details');d.open=true;var r=document.createRange();r.selectNodeContents(src);var s=getSelection();s.removeAllRanges();s.addRange(r);ok.textContent='Выделено, нажми Cmd+C';done()}
+    try{navigator.clipboard.writeText(t).then(done,fallback)}catch(e){fallback()}
+  });
+  var c=document.getElementById('demo'),g=c.getContext('2d'),W=c.width,H=c.height;
+  var still=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function pal(t){return [0,.33,.67].map(function(d){return Math.round(255*(.5+.5*Math.cos(6.283*(t+d))))})}
+  function frame(ms){
+    var t=still?2:ms/1000;
+    g.fillStyle='#0d0d10';g.fillRect(0,0,W,H);
+    var a=[W*.22+Math.sin(t*.9)*30,H*.38+Math.cos(t*.7)*25],b=[W*.30+Math.sin(t*.8)*20,H*.70+Math.sin(t)*20],
+        cc=[W*.76+Math.cos(t*.6)*30,H*.30+Math.sin(t*.9)*25],d=[W*.70+Math.sin(t*.7)*25,H*.74+Math.cos(t*.8)*20];
+    var q=[b,a,cc,d];
+    g.save();g.beginPath();g.moveTo(q[0][0],q[0][1]);for(var i=1;i<4;i++)g.lineTo(q[i][0],q[i][1]);g.closePath();g.clip();
+    for(var y=0;y<H;y+=6){for(var x=0;x<W;x+=6){
+      var l=.5+.5*Math.sin(x*.011+Math.sin(y*.013+t*.6)*2.2+y*.004);
+      var col=pal(l*1.6-t*.25+Math.random()*.08);g.fillStyle='rgb('+col+')';g.fillRect(x,y,6,6);}}
+    g.restore();
+    function hand(w,tip1,tip2){g.strokeStyle='#ff2a1a';g.lineWidth=4;g.beginPath();g.moveTo(w[0],w[1]);g.lineTo(tip1[0],tip1[1]);g.moveTo(w[0],w[1]);g.lineTo(tip2[0],tip2[1]);g.stroke();
+      [w,tip1,tip2].forEach(function(p){g.fillStyle='#4dff3a';g.beginPath();g.arc(p[0],p[1],8,0,7);g.fill()})}
+    hand([a[0]-70,b[1]-20],a,b);hand([cc[0]+70,d[1]-30],cc,d);
+    if(!still)requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
+
+</body></html>
