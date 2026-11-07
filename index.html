@@ -19,6 +19,9 @@ body{background:var(--bg);color:var(--fg);font:17px/1.55 var(--f-body);
 .wrap{max-width:680px;margin:0 auto}
 .hero{display:grid;gap:16px;padding-block:36px 8px}
 h1{font:700 clamp(30px,7.5vw,48px)/1.05 var(--f-display);margin:0;text-wrap:balance}
+.by{margin:-8px 0 0;font:500 15px var(--f-mono);color:var(--muted)}
+.by a{color:#c8e03c;text-decoration:none}
+.by a:hover,.by a:focus-visible{text-decoration:underline}
 .lede{color:var(--muted);margin:0}
 canvas{width:100%;max-width:100%;aspect-ratio:16/9;border-radius:8px;background:#0d0d10;display:block;border:1px solid var(--line)}
 .needs{display:flex;flex-wrap:wrap;gap:8px}
@@ -62,6 +65,7 @@ pre.src{margin:0;max-height:360px;overflow:auto;padding:14px;font:12px/1.5 var(-
 <div class="wrap">
 <header class="hero">
   <h1>Глитч портал</h1>
+  <p class="by">by <a href="https://www.instagram.com/shira_hrewish/" target="_blank" rel="noopener">shira_hrewish</a></p>
   <p class="lede">Поднимаешь руки, и между пальцами появляется кислотное окно. Собирается за минуту.</p>
   <canvas id="demo" width="960" height="540" aria-label="Анимация: цветная фигура между пальцами двух рук"></canvas>
   <div class="needs">
